@@ -1,6 +1,6 @@
 from tkinter import *
 import tkinter.ttk as ttk
-import serial, time, datetime
+import serial, time, datetime, thread
 import serial.tools.list_ports
 
 
@@ -120,13 +120,13 @@ class MORtty:
         try:
             self.ttyS = serial.Serial(self.Port.get(), self.Baud.get())
             self.List_insert('Connected')
+            thread.start_new(self.Get_ttyS_Data, (True,))
         except:
             self.List_insert('Connection failed! Please, check for correct data entry.')
 
-        print self.Port.get(), self.Baud.get()
-
     def Disconnect(self):
         try:
+            thread.exit_thread()
             self.ttyS.close()
             self.List_insert('Disconnected')
         except:
@@ -134,8 +134,8 @@ class MORtty:
         print self.cr.get(), self.lf.get()
 
     def Send(self):
-        l = ''
         if self.appearing.get() == 'HEX':
+            l = ''
             line = self.Data.get()
             if self.cr.get():
                 line = line + ' 0D'
@@ -163,8 +163,8 @@ class MORtty:
                 self.List_insert(str(datetime.datetime.now()) + ' Read >> ' + line)
             except:
                 self.List_insert('Failed! Check your connecting or correct entry!')
-
         if self.appearing.get() == 'DEC':
+            l = ''
             line = self.Data.get()
             if self.cr.get():
                 line = line + ' 13'
@@ -194,6 +194,26 @@ class MORtty:
                 lst[i] = str(lst[i]).split(' ') # Deleting added data
                 lst[i] = lst[i][0]
         self.Port.configure(values=[str(lst[i]) for i in range(len(lst))])
+
+    def Get_ttyS_Data(self, run):
+        while run:
+            line = ''
+            if self.ttyS.inWaiting():
+                data = self.ttyS.read(self.ttyS.inWaiting())
+
+                if self.appearing.get() == 'HEX':
+                    for i in range(len(data)):
+                        line = line + hex(ord(data[i])) + ' '
+                    self.List_insert(str(datetime.datetime.now()) + ' Read >> ' + line)
+
+                if self.appearing.get() == 'ASCII':
+                    self.List_insert(str(datetime.datetime.now()) + ' Read >> ' + data)
+
+                if self.appearing.get() == 'DEC':
+                    for i in range(len(data)):
+                        line = line + ord(data[i]) + ' '
+                    self.List_insert(str(datetime.datetime.now()) + ' Read >> ' + line)
+
 
 
 
