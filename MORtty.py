@@ -1,6 +1,6 @@
 from tkinter import *
 import tkinter.ttk as ttk
-import serial
+import serial, time, datetime
 import serial.tools.list_ports
 
 
@@ -16,6 +16,8 @@ class MORtty:
 
         self.appearing = StringVar()
         self.appearing.set('ASCII')
+        self.lf = IntVar()
+        self.cr = IntVar()
 
         self.ConfFrame = Frame(top)
         self.ConfFrame.place(relx=0.0, rely=0.0, relheight=0.2, relwidth=1.0)
@@ -57,12 +59,12 @@ class MORtty:
         self.SendButton.configure(background="#ffffff")
         self.SendButton.configure(relief=FLAT)
         self.SendButton.configure(text='Send')
-        self.SendButton.configure(command=self.Stop)
+        self.SendButton.configure(command=self.Send)
 
         self.NewLine = Checkbutton(self.ConfFrame)
         self.NewLine.place(relx=0.7, rely=0.01, relheight=0.2, relwidth=0.1)
         self.NewLine.configure(activebackground="#e0ffff")
-        self.NewLine.configure(anchor=W)
+        self.NewLine.configure(anchor=W, variable=self.lf)
         self.NewLine.configure(background="#ffffff")
         self.NewLine.configure(highlightbackground="#ffffff")
         self.NewLine.configure(justify=LEFT)
@@ -72,7 +74,7 @@ class MORtty:
         self.CarriageReturn = Checkbutton(self.ConfFrame)
         self.CarriageReturn.place(relx=0.825, rely=0.01, relheight=0.2, relwidth=0.16)
         self.CarriageReturn.configure(activebackground="#e0ffff")
-        self.CarriageReturn.configure(anchor=W)
+        self.CarriageReturn.configure(anchor=W, variable=self.cr)
         self.CarriageReturn.configure(background="#ffffff")
         self.CarriageReturn.configure(highlightbackground="#ffffff")
         self.CarriageReturn.configure(justify=LEFT)
@@ -129,9 +131,55 @@ class MORtty:
             self.List_insert('Disconnected')
         except:
             self.List_insert('Nothing to disconnect.')
+        print self.cr.get(), self.lf.get()
 
-    def Stop(self):
-        self.ProgressList.insert('end', 'Stop')
+    def Send(self):
+        l = ''
+        if self.appearing.get() == 'HEX':
+            line = self.Data.get()
+            if self.cr.get():
+                line = line + ' 0D'
+            if self.lf.get():
+                line = line + ' 0A'
+            try:
+                line = line.split(' ')
+                for i in range(len(line)):
+                    line[i] = eval('0x' + line[i])
+                    l = l + hex(line[i]) + ' '
+                for i in range(len(line)):
+                    self.ttyS.write(line[i])
+                self.List_insert(str(datetime.datetime.now()) + ' Read >> ' + l)
+            except:
+                self.List_insert('Failed! Check your connecting or correct entry!')
+
+        if self.appearing.get() == 'ASCII':
+            line = self.Data.get()
+            if self.cr.get():
+                line = line + chr(13)
+            if self.lf.get():
+                line = line + chr(10)
+            try:
+                self.ttyS.write(line)
+                self.List_insert(str(datetime.datetime.now()) + ' Read >> ' + line)
+            except:
+                self.List_insert('Failed! Check your connecting or correct entry!')
+
+        if self.appearing.get() == 'DEC':
+            line = self.Data.get()
+            if self.cr.get():
+                line = line + ' 13'
+            if self.lf.get():
+                line = line + ' 10'
+            try:
+                line = line.split(' ')
+                for i in range(len(line)):
+                    line[i] = int(line[i])
+                    l = l + str(line[i]) + ' '
+                for i in range(len(line)):
+                    self.ttyS.write(line[i])
+                self.List_insert(str(datetime.datetime.now()) + ' Read >> ' + l)
+            except:
+                self.List_insert('Failed! Check your connecting or correct entry!')
 
     def List_insert(self, data):
         self.ProgressList.insert('end', data)
@@ -148,6 +196,8 @@ class MORtty:
         self.Port.configure(values=[str(lst[i]) for i in range(len(lst))])
 
 
+
+print datetime.datetime.now()
 root = Tk()
 top = MORtty(root)
 top.Get_Port_List()
