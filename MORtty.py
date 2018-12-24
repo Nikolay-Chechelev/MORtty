@@ -10,7 +10,7 @@ class MORtty:
         top.configure(highlightcolor="black")
 
         self.ConfFrame = Frame(top)
-        self.ConfFrame.place(relx=0.0, rely=0.0, relheight=0.15, relwidth=1.0)
+        self.ConfFrame.place(relx=0.0, rely=0.0, relheight=0.2, relwidth=1.0)
         self.ConfFrame.configure(relief=GROOVE)
         self.ConfFrame.configure(borderwidth="2")
         self.ConfFrame.configure(relief=GROOVE)
@@ -69,8 +69,20 @@ class MORtty:
         self.CarriageReturn.configure(justify=LEFT)
         self.CarriageReturn.configure(text='Carriage Return')
 
+        self.HexAppear = Radiobutton(self.ConfFrame)
+        self.HexAppear.place(relx=0.7, rely=0.25, relheight=0.2, relwidth=0.1)
+        self.HexAppear.configure(text='HEX')
+
+        self.DecAppear = Radiobutton(self.ConfFrame)
+        self.DecAppear.place(relx=0.8, rely=0.25, relheight=0.2, relwidth=0.1)
+        self.DecAppear.configure(text='DEC')
+
+        self.ASCIIAppear = Radiobutton(self.ConfFrame)
+        self.ASCIIAppear.place(relx=0.9, rely=0.25, relheight=0.2, relwidth=0.1)
+        self.ASCIIAppear.configure(text='ASCII')
+
         self.ProgressFrame = Frame(top)
-        self.ProgressFrame.place(relx=0.0, rely=0.15, relheight=0.85, relwidth=0.975)
+        self.ProgressFrame.place(relx=0.0, rely=0.2, relheight=0.85, relwidth=0.975)
         self.ProgressFrame.configure(relief=GROOVE)
         self.ProgressFrame.configure(borderwidth="2")
         self.ProgressFrame.configure(relief=GROOVE)
@@ -84,7 +96,7 @@ class MORtty:
         self.ProgressList.configure(width=564)
 
         self.Scale1 = Scale(top)
-        self.Scale1.place(relx=0.975, rely=0.15, relwidth=0.50, relheight=1.0, width=10, bordermode='ignore')
+        self.Scale1.place(relx=0.975, rely=0.2, relwidth=0.50, relheight=0.8, width=10, bordermode='ignore')
         self.Scale1.configure(activebackground="#ffffff")
         self.Scale1.configure(background="#ffffff")
         self.Scale1.configure(font="TkTextFont")
