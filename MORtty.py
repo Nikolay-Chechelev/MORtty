@@ -1,4 +1,7 @@
 from tkinter import *
+import tkinter.ttk as ttk
+import serial
+import serial.tools.list_ports
 
 
 class MORtty:
@@ -8,6 +11,11 @@ class MORtty:
         top.title("MORtty Terminal")
         top.configure(background="#e0ffff")
         top.configure(highlightcolor="black")
+
+        self.ttyS = None
+
+        self.appearing = StringVar()
+        self.appearing.set('ASCII')
 
         self.ConfFrame = Frame(top)
         self.ConfFrame.place(relx=0.0, rely=0.0, relheight=0.2, relwidth=1.0)
@@ -23,7 +31,7 @@ class MORtty:
         self.ConnectButton.configure(background="#ffffff")
         self.ConnectButton.configure(relief=FLAT)
         self.ConnectButton.configure(text='Connect')
-        self.ConnectButton.configure(command=self.Play)
+        self.ConnectButton.configure(command=self.Connect)
 
         self.DisconnectButton = Button(self.ConfFrame)
         self.DisconnectButton.place(relx=0.01, rely=0.5, height=30, width=100)
@@ -31,13 +39,14 @@ class MORtty:
         self.DisconnectButton.configure(background="#ffffff")
         self.DisconnectButton.configure(relief=FLAT)
         self.DisconnectButton.configure(text='Disconnect')
-        self.DisconnectButton.configure(command=self.Pause)
+        self.DisconnectButton.configure(command=self.Disconnect)
 
-        self.Port = Entry(self.ConfFrame)
+        self.Port = ttk.Combobox(self.ConfFrame)
         self.Port.place(relx=0.15, rely=0.05, height=30, width=150)
 
         self.Baud = Entry(self.ConfFrame)
         self.Baud.place(relx=0.35, rely=0.05, height=30, width=150)
+        self.Baud.insert(0, '115200')
 
         self.Data = Entry(self.ConfFrame)
         self.Data.place(relx=0.15, rely=0.5, height=30, width=500)
@@ -71,15 +80,15 @@ class MORtty:
 
         self.HexAppear = Radiobutton(self.ConfFrame)
         self.HexAppear.place(relx=0.7, rely=0.25, relheight=0.2, relwidth=0.1)
-        self.HexAppear.configure(text='HEX')
+        self.HexAppear.configure(text='HEX', variable=self.appearing, value='HEX')
 
         self.DecAppear = Radiobutton(self.ConfFrame)
         self.DecAppear.place(relx=0.8, rely=0.25, relheight=0.2, relwidth=0.1)
-        self.DecAppear.configure(text='DEC')
+        self.DecAppear.configure(text='DEC', variable=self.appearing, value='DEC')
 
         self.ASCIIAppear = Radiobutton(self.ConfFrame)
         self.ASCIIAppear.place(relx=0.9, rely=0.25, relheight=0.2, relwidth=0.1)
-        self.ASCIIAppear.configure(text='ASCII')
+        self.ASCIIAppear.configure(text='ASCII', variable=self.appearing, value='ASCII')
 
         self.ProgressFrame = Frame(top)
         self.ProgressFrame.place(relx=0.0, rely=0.2, relheight=0.85, relwidth=0.975)
@@ -105,11 +114,21 @@ class MORtty:
         self.Scale1.configure(showvalue="0")
         self.Scale1.configure(troughcolor="#ffffff")
 
-    def Play(self):
-        self.ProgressList.insert('end', 'Start')
+    def Connect(self):
+        try:
+            self.ttyS = serial.Serial(self.Port.get(), self.Baud.get())
+            self.List_insert('Connected')
+        except:
+            self.List_insert('Connection failed! Please, check for correct data entry.')
 
-    def Pause(self):
-        self.ProgressList.insert('end', 'Pause')
+        print self.Port.get(), self.Baud.get()
+
+    def Disconnect(self):
+        try:
+            self.ttyS.close()
+            self.List_insert('Disconnected')
+        except:
+            self.List_insert('Nothing to disconnect.')
 
     def Stop(self):
         self.ProgressList.insert('end', 'Stop')
@@ -120,7 +139,16 @@ class MORtty:
         self.ProgressList.place(relx=0.0, rely=0.0, relheight=1.0, relwidth=1.0)
         self.root.update()
 
+    def Get_Port_List(self):
+        lst = serial.tools.list_ports.comports()  # getting the list of available ports
+        for i in range(len(lst)): # usualy for Mac
+            if ' ' in str(lst[i]):  # attempt to find added data to path
+                lst[i] = str(lst[i]).split(' ') # Deleting added data
+                lst[i] = lst[i][0]
+        self.Port.configure(values=[str(lst[i]) for i in range(len(lst))])
+
 
 root = Tk()
 top = MORtty(root)
+top.Get_Port_List()
 root.mainloop()
