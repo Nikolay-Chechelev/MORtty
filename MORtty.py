@@ -1,3 +1,4 @@
+#coding: utf-8
 from tkinter import *
 import tkinter.ttk as ttk
 import serial, time, datetime, thread
@@ -13,6 +14,7 @@ class MORtty:
         top.configure(highlightcolor="black")
 
         self.ttyS = None
+        self.run = False
 
         self.appearing = StringVar()
         self.appearing.set('ASCII')
@@ -45,13 +47,16 @@ class MORtty:
 
         self.Port = ttk.Combobox(self.ConfFrame)
         self.Port.place(relx=0.15, rely=0.05, height=30, width=150)
+        self.Port.configure(background="#ffffff")
 
         self.Baud = Entry(self.ConfFrame)
         self.Baud.place(relx=0.35, rely=0.05, height=30, width=150)
         self.Baud.insert(0, '115200')
+        self.Baud.configure(background="#ffffff")
 
         self.Data = Entry(self.ConfFrame)
         self.Data.place(relx=0.15, rely=0.5, height=30, width=500)
+        self.Data.configure(background="#ffffff")
 
         self.SendButton = Button(self.ConfFrame)
         self.SendButton.place(relx=0.85, rely=0.5, height=30, width=100)
@@ -83,14 +88,17 @@ class MORtty:
         self.HexAppear = Radiobutton(self.ConfFrame)
         self.HexAppear.place(relx=0.7, rely=0.25, relheight=0.2, relwidth=0.1)
         self.HexAppear.configure(text='HEX', variable=self.appearing, value='HEX')
+        self.HexAppear.configure(background="#ffffff")
 
         self.DecAppear = Radiobutton(self.ConfFrame)
         self.DecAppear.place(relx=0.8, rely=0.25, relheight=0.2, relwidth=0.1)
         self.DecAppear.configure(text='DEC', variable=self.appearing, value='DEC')
+        self.DecAppear.configure(background="#ffffff")
 
         self.ASCIIAppear = Radiobutton(self.ConfFrame)
         self.ASCIIAppear.place(relx=0.9, rely=0.25, relheight=0.2, relwidth=0.1)
         self.ASCIIAppear.configure(text='ASCII', variable=self.appearing, value='ASCII')
+        self.ASCIIAppear.configure(background="#ffffff")
 
         self.ProgressFrame = Frame(top)
         self.ProgressFrame.place(relx=0.0, rely=0.2, relheight=0.85, relwidth=0.975)
@@ -120,13 +128,14 @@ class MORtty:
         try:
             self.ttyS = serial.Serial(self.Port.get(), self.Baud.get())
             self.List_insert('Connected')
+            self.run = True
             thread.start_new(self.Get_ttyS_Data, (True,))
         except:
             self.List_insert('Connection failed! Please, check for correct data entry.')
 
     def Disconnect(self):
         try:
-            thread.exit_thread()
+            self.run = False
             self.ttyS.close()
             self.List_insert('Disconnected')
         except:
@@ -159,7 +168,7 @@ class MORtty:
             if self.lf.get():
                 line = line + chr(10)
             try:
-                self.ttyS.write(line)
+                self.ttyS.write(line.encode('ascii','ignore'))
                 self.List_insert(str(datetime.datetime.now()) + ' Read >> ' + line)
             except:
                 self.List_insert('Failed! Check your connecting or correct entry!')
@@ -195,8 +204,8 @@ class MORtty:
                 lst[i] = lst[i][0]
         self.Port.configure(values=[str(lst[i]) for i in range(len(lst))])
 
-    def Get_ttyS_Data(self, run):
-        while run:
+    def Get_ttyS_Data(self, *args):
+        while self.run:
             line = ''
             if self.ttyS.inWaiting():
                 data = self.ttyS.read(self.ttyS.inWaiting())
@@ -213,9 +222,6 @@ class MORtty:
                     for i in range(len(data)):
                         line = line + ord(data[i]) + ' '
                     self.List_insert(str(datetime.datetime.now()) + ' Read >> ' + line)
-
-
-
 
 print datetime.datetime.now()
 root = Tk()
