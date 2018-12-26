@@ -101,7 +101,7 @@ class MORtty:
         self.ASCIIAppear.configure(background="#ffffff")
 
         self.ProgressFrame = Frame(top)
-        self.ProgressFrame.place(relx=0.0, rely=0.2, relheight=0.85, relwidth=0.975)
+        self.ProgressFrame.place(relx=0.0, rely=0.2, relheight=0.85, relwidth=1.0)
         self.ProgressFrame.configure(relief=GROOVE)
         self.ProgressFrame.configure(borderwidth="2")
         self.ProgressFrame.configure(relief=GROOVE)
@@ -114,15 +114,15 @@ class MORtty:
         self.ProgressList.configure(font="TkFixedFont")
         self.ProgressList.configure(width=564)
 
-        self.Scale1 = Scale(top)
-        self.Scale1.place(relx=0.975, rely=0.2, relwidth=0.50, relheight=0.8, width=10, bordermode='ignore')
+        self.Scale1 = Scrollbar(self.ProgressList)
+        self.Scale1.pack(side=RIGHT, fill=Y)
         self.Scale1.configure(activebackground="#ffffff")
         self.Scale1.configure(background="#ffffff")
-        self.Scale1.configure(font="TkTextFont")
         self.Scale1.configure(highlightbackground="#ffffff")
-        self.Scale1.configure(length="398")
-        self.Scale1.configure(showvalue="0")
         self.Scale1.configure(troughcolor="#ffffff")
+
+        self.ProgressList.configure(yscrollcommand=self.Scale1.set)
+        self.Scale1.config(command=self.ProgressList.yview)
 
     def Connect(self):
         try:
@@ -159,7 +159,19 @@ class MORtty:
                     self.ttyS.write(line[i])
                 self.List_insert(str(datetime.datetime.now()) + ' Read >> ' + l)
             except:
-                self.List_insert('Failed! Check your connecting or correct entry!')
+                try:
+                    l = ''
+                    line = self.Data.get()
+                    if self.cr.get():
+                        line = line + ' 0D'
+                    if self.lf.get():
+                        line = line + ' 0A'
+                    for i in range(len(line)):
+                        self.ttyS.write(line[i])
+                        l = l + hex(ord(line[i])) + ' '
+                    self.List_insert(str(datetime.datetime.now()) + ' Read >> ' + l)
+                except:
+                    self.List_insert('Failed! Check your connecting or correct entry!')
 
         if self.appearing.get() == 'ASCII':
             line = self.Data.get()
