@@ -1,3 +1,4 @@
+#!/usr/local/bin/python
 #coding: utf-8
 from tkinter import *
 import tkinter.ttk as ttk
@@ -8,10 +9,10 @@ import serial.tools.list_ports
 class MORtty:
     def __init__(self, top=None):
         self.root = top
-        top.geometry("800x500")
-        top.title("MORtty Terminal")
-        top.configure(background="#e0ffff")
-        top.configure(highlightcolor="black")
+        self.root.geometry("800x500")
+        self.root.title("MORtty Terminal")
+        self.root.configure(background="#e0ffff")
+        self.root.configure(highlightcolor="black")
 
         self.ttyS = None
         self.run = False
@@ -21,10 +22,41 @@ class MORtty:
         self.lf = IntVar()
         self.cr = IntVar()
 
-        self.ConfFrame = Frame(top)
-        self.ConfFrame.place(relx=0.0, rely=0.0, relheight=0.2, relwidth=1.0)
+        self.BaseFrame = Frame(self.root)
+        self.BaseFrame.place(relx=0.0, rely=0.0, relheight=0.05, relwidth=1.0)
+        self.MORttyMenu = Menu(self.BaseFrame)
+        self.root.config(menu=self.MORttyMenu)
+
+        self.MainMenu = Menubutton(self.BaseFrame, text='Main')
+        self.MainMenu.grid(row=0, column=0)
+        self.MainMenu.menu = Menu(self.MainMenu, tearoff=0)
+        self.MainMenu["menu"] = self.MainMenu.menu
+        self.MainMenu.menu.add_command(label="Connect", command=self.Connect)
+        self.MainMenu.menu.add_command(label="Disconnect", command=self.Disconnect)
+        self.MainMenu.menu.add_separator()
+        self.MainMenu.menu.add_command(label="Clear", command=self.Clear)
+        self.MainMenu.menu.add_separator()
+        self.MainMenu.menu.add_command(label='Exit', command=self.Exit)
+
+        self.OptionsMenu = Menubutton(self.BaseFrame, text='Options')
+        self.OptionsMenu.grid(row=0, column=1)
+        self.OptionsMenu.menu = Menu(self.OptionsMenu, tearoff=0)
+        self.OptionsMenu["menu"] = self.OptionsMenu.menu
+        self.OptionsMenu.menu.add_command(label='Settings')
+        self.OptionsMenu.menu.add_command(label='Macros')
+
+        self.AboutMenu = Menubutton(self.BaseFrame, text='About')
+        self.AboutMenu.grid(row=0, column=2)
+        self.AboutMenu.menu = Menu(self.AboutMenu, tearoff=0)
+        self.AboutMenu["menu"] = self.AboutMenu.menu
+        self.AboutMenu.menu.add_command(label='Help')
+        self.AboutMenu.menu.add_separator()
+        self.AboutMenu.menu.add_command(label='About us')
+
+        self.ConfFrame = Frame(self.root)
+        self.ConfFrame.place(relx=0.0, rely=0.05, relheight=0.2, relwidth=1.0)
         self.ConfFrame.configure(relief=GROOVE)
-        self.ConfFrame.configure(borderwidth="2")
+        self.ConfFrame.configure(borderwidth="1")
         self.ConfFrame.configure(relief=GROOVE)
         self.ConfFrame.configure(background="#ffffff")
         self.ConfFrame.configure(width=255)
@@ -47,12 +79,10 @@ class MORtty:
 
         self.Port = ttk.Combobox(self.ConfFrame)
         self.Port.place(relx=0.15, rely=0.05, height=30, width=150)
-        self.Port.configure(background="#ffffff")
 
         self.Baud = Entry(self.ConfFrame)
         self.Baud.place(relx=0.35, rely=0.05, height=30, width=150)
         self.Baud.insert(0, '115200')
-        self.Baud.configure(background="#ffffff")
 
         self.Data = Entry(self.ConfFrame)
         self.Data.place(relx=0.15, rely=0.5, height=30, width=500)
@@ -100,8 +130,8 @@ class MORtty:
         self.ASCIIAppear.configure(text='ASCII', variable=self.appearing, value='ASCII')
         self.ASCIIAppear.configure(background="#ffffff")
 
-        self.ProgressFrame = Frame(top)
-        self.ProgressFrame.place(relx=0.0, rely=0.2, relheight=0.85, relwidth=1.0)
+        self.ProgressFrame = Frame(self.root)
+        self.ProgressFrame.place(relx=0.0, rely=0.25, relheight=0.75, relwidth=1.0)
         self.ProgressFrame.configure(relief=GROOVE)
         self.ProgressFrame.configure(borderwidth="2")
         self.ProgressFrame.configure(relief=GROOVE)
@@ -134,13 +164,15 @@ class MORtty:
             self.List_insert('Connection failed! Please, check for correct data entry.')
 
     def Disconnect(self):
+        self.run = False
         try:
-            self.run = False
-            self.ttyS.close()
-            self.List_insert('Disconnected')
+            if self.ttyS.isOpen():
+                self.ttyS.close()
+                self.List_insert('Disconnected')
+            else:
+                self.List_insert('Nothing to disconnect.')
         except:
             self.List_insert('Nothing to disconnect.')
-        print self.cr.get(), self.lf.get()
 
     def Send(self):
         if self.appearing.get() == 'HEX':
@@ -234,6 +266,14 @@ class MORtty:
                     for i in range(len(data)):
                         line = line + ord(data[i]) + ' '
                     self.List_insert(str(datetime.datetime.now()) + ' Read >> ' + line)
+
+    def Exit(self):
+        exit()
+
+    def Clear(self):
+        for i in range(self.ProgressList.size()):
+            self.ProgressList.delete('end')
+        return 0
 
 print datetime.datetime.now()
 root = Tk()
