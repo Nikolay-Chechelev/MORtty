@@ -7,8 +7,8 @@ import serial.tools.list_ports
 
 
 class MORtty:
-    def __init__(self, top=None):
-        self.root = top
+    def __init__(self):
+        self.root = Tk()
         self.root.geometry("800x500")
         self.root.title("MORtty Terminal")
         self.root.configure(background="white")
@@ -154,6 +154,9 @@ class MORtty:
         self.Scale1.config(command=self.ProgressList.yview)
         thread.start_new(self.Get_Port_List, (None,))
 
+    def mainloop(self):
+        self.root.mainloop()
+
     def Connect(self):
         try:
             self.ttyS = serial.Serial(self.Port.get(), self.Baud.get())
@@ -278,6 +281,5 @@ class MORtty:
         return 0
 
 print datetime.datetime.now()
-root = Tk()
-top = MORtty(root)
-root.mainloop()
+m = MORtty()
+m.mainloop()
