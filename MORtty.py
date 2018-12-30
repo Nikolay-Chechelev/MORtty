@@ -11,8 +11,7 @@ class MORtty:
         self.root = top
         self.root.geometry("800x500")
         self.root.title("MORtty Terminal")
-        self.root.configure(background="#e0ffff")
-        self.root.configure(highlightcolor="black")
+        self.root.configure(background="white")
 
         self.ttyS = None
         self.run = False
@@ -38,12 +37,12 @@ class MORtty:
         self.MainMenu.menu.add_separator()
         self.MainMenu.menu.add_command(label='Exit', command=self.Exit)
 
-        self.OptionsMenu = Menubutton(self.BaseFrame, text='Options')
+        self.OptionsMenu = Menubutton(self.BaseFrame, text='Features')
         self.OptionsMenu.grid(row=0, column=1)
         self.OptionsMenu.menu = Menu(self.OptionsMenu, tearoff=0)
         self.OptionsMenu["menu"] = self.OptionsMenu.menu
-        self.OptionsMenu.menu.add_command(label='Settings')
-        self.OptionsMenu.menu.add_command(label='Macros')
+        self.OptionsMenu.menu.add_command(label='Export to file')
+        self.OptionsMenu.menu.add_command(label='Import file')
 
         self.AboutMenu = Menubutton(self.BaseFrame, text='About')
         self.AboutMenu.grid(row=0, column=2)
@@ -153,6 +152,7 @@ class MORtty:
 
         self.ProgressList.configure(yscrollcommand=self.Scale1.set)
         self.Scale1.config(command=self.ProgressList.yview)
+        thread.start_new(self.Get_Port_List, (None,))
 
     def Connect(self):
         try:
@@ -240,13 +240,15 @@ class MORtty:
         self.ProgressList.place(relx=0.0, rely=0.0, relheight=1.0, relwidth=1.0)
         self.root.update()
 
-    def Get_Port_List(self):
-        lst = serial.tools.list_ports.comports()  # getting the list of available ports
-        for i in range(len(lst)): # usualy for Mac
-            if ' ' in str(lst[i]):  # attempt to find added data to path
-                lst[i] = str(lst[i]).split(' ') # Deleting added data
-                lst[i] = lst[i][0]
-        self.Port.configure(values=[str(lst[i]) for i in range(len(lst))])
+    def Get_Port_List(self, *args):
+        while 1:
+            lst = serial.tools.list_ports.comports()  # getting the list of available ports
+            for i in range(len(lst)): # usualy for Mac
+                if ' ' in str(lst[i]):  # attempt to find added data to path
+                    lst[i] = str(lst[i]).split(' ') # Deleting added data
+                    lst[i] = lst[i][0]
+            self.Port.configure(values=[str(lst[i]) for i in range(len(lst))])
+            time.sleep(0.5)
 
     def Get_ttyS_Data(self, *args):
         while self.run:
@@ -278,5 +280,4 @@ class MORtty:
 print datetime.datetime.now()
 root = Tk()
 top = MORtty(root)
-top.Get_Port_List()
 root.mainloop()
