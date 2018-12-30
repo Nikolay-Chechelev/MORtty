@@ -4,6 +4,9 @@ from tkinter import *
 import tkinter.ttk as ttk
 import serial, time, datetime, thread
 import serial.tools.list_ports
+from tkinterhtml import HtmlFrame
+import urllib
+
 
 
 class MORtty:
@@ -48,7 +51,7 @@ class MORtty:
         self.AboutMenu.grid(row=0, column=2)
         self.AboutMenu.menu = Menu(self.AboutMenu, tearoff=0)
         self.AboutMenu["menu"] = self.AboutMenu.menu
-        self.AboutMenu.menu.add_command(label='Help')
+        self.AboutMenu.menu.add_command(label='Help', command=self.Help)
         self.AboutMenu.menu.add_separator()
         self.AboutMenu.menu.add_command(label='About us')
 
@@ -64,7 +67,6 @@ class MORtty:
         self.ConnectButton.place(relx=0.01, rely=0.05, height=30, width=100)
         self.ConnectButton.configure(activebackground="#e0ffff")
         self.ConnectButton.configure(background="#ffffff")
-        self.ConnectButton.configure(relief=FLAT)
         self.ConnectButton.configure(text='Connect')
         self.ConnectButton.configure(command=self.Connect)
 
@@ -72,7 +74,6 @@ class MORtty:
         self.DisconnectButton.place(relx=0.01, rely=0.5, height=30, width=100)
         self.DisconnectButton.configure(activebackground="#e0ffff")
         self.DisconnectButton.configure(background="#ffffff")
-        self.DisconnectButton.configure(relief=FLAT)
         self.DisconnectButton.configure(text='Disconnect')
         self.DisconnectButton.configure(command=self.Disconnect)
 
@@ -91,7 +92,6 @@ class MORtty:
         self.SendButton.place(relx=0.85, rely=0.5, height=30, width=100)
         self.SendButton.configure(activebackground="#e0ffff")
         self.SendButton.configure(background="#ffffff")
-        self.SendButton.configure(relief=FLAT)
         self.SendButton.configure(text='Send')
         self.SendButton.configure(command=self.Send)
 
@@ -155,6 +155,7 @@ class MORtty:
         thread.start_new(self.Get_Port_List, (None,))
 
     def mainloop(self):
+        self.root.update()
         self.root.mainloop()
 
     def Connect(self):
@@ -272,6 +273,10 @@ class MORtty:
                         line = line + ord(data[i]) + ' '
                     self.List_insert(str(datetime.datetime.now()) + ' Read >> ' + line)
 
+    def Help(self):
+        w = HelpWindow()
+        w.mainloop()
+
     def Exit(self):
         exit()
 
@@ -280,6 +285,26 @@ class MORtty:
             self.ProgressList.delete('end')
         return 0
 
-print datetime.datetime.now()
+class HelpWindow():
+    def __init__(self):
+        self.root = Tk()
+        self.root.geometry("500x300")
+        self.root.title("MORtty Terminal - Info")
+        self.root.configure(background="white")
+        self.WebPage = HtmlFrame(self.root)
+        self.WebPage.set_content('''<p align=center>hgihk</p>''')
+        self.WebPage.place(relx=0.0, rely=0.0, relheight=0.9, relwidth=1.0)
+
+        self.ButtonFrame = Frame(self.root)
+        self.ButtonFrame.place(relx=0.0, rely=0.9, relheight=0.1, relwidth=1.0)
+
+        self.Closebutton = Button(self.ButtonFrame)
+        self.Closebutton.configure(text='Close', command=self.root.destroy)
+        self.Closebutton.place(relx=0.5, rely=0.5, anchor='center')
+
+    def mainloop(self):
+        self.root.mainloop()
+
+
 m = MORtty()
 m.mainloop()
