@@ -355,7 +355,6 @@ class Dialog():
             for i in range(m.ProgressList.size()):
                 print self.cleandat.get()
                 if self.cleandat.get() == True:
-
                     f.write(m.ProgressList.get(i).split(' Read >> ')[1])
                     f.write(chr(13)+chr(10))
                 else:
