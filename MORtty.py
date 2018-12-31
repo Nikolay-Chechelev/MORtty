@@ -10,8 +10,8 @@ import urllib
 
 
 class MORtty:
-    def __init__(self):
-        self.root = Tk()
+    def __init__(self, parent):
+        self.root = parent
         self.root.geometry("800x500")
         self.root.title("MORtty Terminal")
         self.root.configure(background="white")
@@ -44,8 +44,8 @@ class MORtty:
         self.OptionsMenu.grid(row=0, column=1)
         self.OptionsMenu.menu = Menu(self.OptionsMenu, tearoff=0)
         self.OptionsMenu["menu"] = self.OptionsMenu.menu
-        self.OptionsMenu.menu.add_command(label='Export to file')
-        self.OptionsMenu.menu.add_command(label='Import file')
+        self.OptionsMenu.menu.add_command(label='Export to file', command=self.ExportFile)
+        self.OptionsMenu.menu.add_command(label='Import file', command=self.ImportFile)
 
         self.AboutMenu = Menubutton(self.BaseFrame, text='About')
         self.AboutMenu.grid(row=0, column=2)
@@ -273,6 +273,14 @@ class MORtty:
                         line = line + ord(data[i]) + ' '
                     self.List_insert(str(datetime.datetime.now()) + ' Read >> ' + line)
 
+    def ExportFile(self):
+        d = Dialog('Export File')
+        d.mainloop()
+
+    def ImportFile(self):
+        d = Dialog('Import File')
+        d.mainloop()
+
     def Help(self):
         w = HelpWindow()
         w.mainloop()
@@ -306,5 +314,61 @@ class HelpWindow():
         self.root.mainloop()
 
 
-m = MORtty()
+class Dialog():
+    def __init__(self, text):
+        self.root = Tk()
+        self.text = text
+        self.root.title("MORtty Terminal - " + self.text)
+        self.root.configure(background="white")
+
+        self.cleandat = IntVar()
+
+        self.label1 = Label(self.root, text='Filename: ')
+        self.label1.grid(row=0, column=0)
+        self.Name = Entry(self.root)
+        self.Name.grid(row=0, column=1)
+
+        self.label2 = Label(self.root, text='Signature: ')
+        self.label2.grid(row=1, column=0)
+        self.Signature = Entry(self.root)
+        self.Signature.grid(row=1, column=1)
+
+        self.label3 = Label(self.root, text='End: ')
+        self.label3.grid(row=2, column=0)
+        self.End = Entry(self.root)
+        self.End.grid(row=2, column=1)
+
+        self.Data = Checkbutton(self.root, text='Only data')
+        self.Data.configure(variable=self.cleandat)
+        self.Data.grid(row=3, columnspan=2)
+
+        self.CancelButton = Button(self.root, text='Cancel', command=self.root.destroy)
+        self.CancelButton.grid(row=4, column=0)
+        self.OKButton = Button(self.root, text='OK', command=self.FileRW)
+        self.OKButton.grid(row=4, column=1)
+
+    def FileRW(self):
+        if 'Export' in self.text:
+            f = open(self.Name.get(), 'w')
+            f.write(self.Signature.get())
+            f.write(chr(13) + chr(10))
+            for i in range(m.ProgressList.size()):
+                print self.cleandat.get()
+                if self.cleandat.get() == True:
+
+                    f.write(m.ProgressList.get(i).split(' Read >> ')[1])
+                    f.write(chr(13)+chr(10))
+                else:
+                    f.write(m.ProgressList.get(i))
+                    f.write(chr(13) + chr(10))
+            f.write(self.End.get())
+            f.close()
+
+    def mainloop(self):
+        self.root.mainloop()
+
+        
+
+
+m = MORtty(Tk())
 m.mainloop()
