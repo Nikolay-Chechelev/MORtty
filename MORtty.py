@@ -362,6 +362,19 @@ class Dialog():
                     f.write(chr(13) + chr(10))
             f.write(self.End.get())
             f.close()
+            m.List_insert('Data was saved in ' + self.Name.get())
+            self.root.destroy()
+
+        elif 'Import' in self.text:
+            m.List_insert('Import file ' + self.Name.get())
+            f = open(self.Name.get(), 'r')
+            lines = f.read()
+            m.ttyS.write(self.Signature.get())
+            for i in lines:
+                m.ttyS.write(lines)
+            m.ttyS.write(self.End.get())
+            m.List_insert('Data was sent!')
+            self.root.destroy()
 
     def mainloop(self):
         self.root.mainloop()
