@@ -24,7 +24,7 @@ system for available serial ports and show this list in ComboBox.
 For connection you should choose necessary port in ComboBox, type necessary
 Baudrate (port speed) in textbox (default is 115200) and press CONNECT Button
 or Menu->Main->Connect. If MORtty writes 'Connected' it means that the
-connection successful. In unsuccessful case it will wrile 'Connection failed!'.
+connection successful. In unsuccessful case it will write 'Connection failed!'.
 
 To disconnect from port press DISCONNECT Button or Menu->Main->Disconnect.
 
@@ -39,8 +39,8 @@ sings and numbers.
 If you choose HEX type, you should write weather ASCII (it will be automatically
 translate to HEX), or 00 to FF (without 0x). Bytes should be separate with space.
 If you will type '0xFF' MORtty will recognize it as ascii string, and if 'FF'
-than as hex (255 decimal). You also can type data that include more then 1 byte,
-for exampl E5FAD7 will send to port 3 bytes.
+than as hex (255 decimal). You can also type data that includes more then 1 byte,
+for example E5FAD7 will send to port 3 bytes.
 
 If you choose DEC type you should write any integer numbers (you can use sign)
 separated with space.
@@ -53,7 +53,7 @@ To clear/reset data window choose Menu->Main->Clear.
 WORK WITH FILES
 With MORtty you can import end export data from/to any file you want.
 To Export the data from data window you should choose Menu->Main->Export. The
-Export window will be opened. You shoud type necessary file name and press
+Export window will be opened. You should type necessary file name and press
 OK Button. You also can type Signature (Header) and End of file if necessary.
 If you will set ONLY DATA checkbox, MORtty will import only data (without
 time and 'READ >> ')
